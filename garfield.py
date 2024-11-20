@@ -67,7 +67,7 @@ def post_to_bluesky(comic_image_url, comic_date):
     }
 
     client.send_post(text=text, embed=embed)
-    print(f"Posted comic from {comic_url}")
+    print(f"Posted comic from {comic_image_url}")
 
 
 # Main function, it will publish Garfield comics every six hours:
