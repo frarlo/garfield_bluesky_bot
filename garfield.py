@@ -81,4 +81,4 @@ while True:
     else:
         print(f"Failed to fetch comic from {comic_url}")
 
-    time.sleep(7200)
+    # [Cron job] time.sleep(7200)
