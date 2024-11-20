@@ -71,7 +71,7 @@ def post_to_bluesky(comic_image_url, comic_date):
 
 
 # Main function, it will publish Garfield comics every six hours:
-while True:
+def main():
     random_date = get_random_date()
     comic_url = f"{BASE_URL}/{random_date.year}/{random_date.month:02}/{random_date.day:02}"
     image_url = fetch_comic_image(comic_url)
@@ -82,3 +82,6 @@ while True:
         print(f"Failed to fetch comic from {comic_url}")
 
     # [Cron job] time.sleep(7200)
+
+if __name__ == "__main__":
+    main()
