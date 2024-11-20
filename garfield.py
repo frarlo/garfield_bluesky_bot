@@ -1,14 +1,17 @@
-import os
 import requests
 from bs4 import BeautifulSoup
 from atproto import Client
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+import os
 import random
 import time
 
+load_dotenv()
+
 # Bot configuration:
-USERNAME = os.environ.get('BLUESKY_USERNAME')
-PASSWORD = os.environ.get('BLUESKY_PASSWORD')
+USERNAME = os.environ.get('BLUESKY_USERNAME') or os.getenv("BLUESKY_USERNAME")
+PASSWORD = os.environ.get('BLUESKY_PASSWORD') or os.getenv("BLUESKY_PASSWORD")
 BASE_URL = "https://www.gocomics.com/garfield"
 START_DATE = datetime(1978, 6, 19) # Garfield first comic
 END_DATE = datetime.now()
@@ -16,6 +19,7 @@ END_DATE = datetime.now()
 # Bluesky client init
 client = Client()
 client.login(USERNAME, PASSWORD)
+
 
 # Returns a random date between today and Garfield's first comic:
 def get_random_date():
@@ -77,4 +81,4 @@ while True:
     else:
         print(f"Failed to fetch comic from {comic_url}")
 
-    time.sleep(21600)
+    time.sleep(7200)
