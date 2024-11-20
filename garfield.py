@@ -81,7 +81,7 @@ def main():
     else:
         print(f"Failed to fetch comic from {comic_url}")
 
-    # [Cron job] time.sleep(7200)
+    time.sleep(7200)
 
 if __name__ == "__main__":
     main()
