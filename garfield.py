@@ -17,12 +17,13 @@ END_DATE = datetime.now()
 client = Client()
 client.login(USERNAME, PASSWORD)
 
-
-def get_random_comic_url():
+# Returns a random date between today and Garfield's first comic:
+def get_random_date():
     date = START_DATE + timedelta(days=random.randint(0, (END_DATE - START_DATE).days))
     return date
 
 
+# Returns the url of the Garfield comic in the random date:
 def fetch_comic_image(url):
     response = requests.get(url)
     if response.status_code != 200:
@@ -38,23 +39,24 @@ def fetch_comic_image(url):
     return None
 
 
-def post_to_bluesky(image_url, comic_date):
+# Posts the image and the date in Bluesky:
+def post_to_bluesky(comic_image_url, comic_date):
+    date = comic_date.strftime("%d/%m/%Y")
+    text = f"#Garfield {date} 🐱"
 
-    text = f"#Garfield {comic_date} 🐱"
-
-    response = requests.get(image_url)
+    response = requests.get(comic_image_url)
     if response.status_code != 200:
         print("Failed to download image.")
         return
 
     image_data = response.content
-    uploaded_blob = client.upload_blob(image_data)  # Sin content_type
+    uploaded_blob = client.upload_blob(image_data)
 
     embed = {
         "$type": "app.bsky.embed.images",
         "images": [
             {
-                "image": uploaded_blob['blob'],  # Usar el BlobRef de la imagen subida
+                "image": uploaded_blob['blob'],
                 "alt": "Garfield comic"
             }
         ]
@@ -64,8 +66,9 @@ def post_to_bluesky(image_url, comic_date):
     print(f"Posted comic from {comic_url}")
 
 
+# Main function, it will publish Garfield comics every six hours:
 while True:
-    random_date = get_random_comic_url()
+    random_date = get_random_date()
     comic_url = f"{BASE_URL}/{random_date.year}/{random_date.month:02}/{random_date.day:02}"
     image_url = fetch_comic_image(comic_url)
 
@@ -74,4 +77,4 @@ while True:
     else:
         print(f"Failed to fetch comic from {comic_url}")
 
-    time.sleep(21600)  # Repeats every six hours
+    time.sleep(21600)
