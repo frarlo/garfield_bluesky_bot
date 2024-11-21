@@ -2,7 +2,8 @@ name: Garfield Script
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "* */4 * * *"
+  workflow_dispatch:
 
 jobs:
   run-script:
@@ -23,5 +24,8 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run Garfield script
+        env:
+          BLUESKY_USERNAME: ${{ secrets.BLUESKY_USERNAME }}
+          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
         run: |
           python garfield.py
