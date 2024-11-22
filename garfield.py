@@ -47,6 +47,7 @@ def fetch_comic_image(url):
 def post_to_bluesky(comic_image_url, comic_date):
     date = comic_date.strftime("%d/%m/%Y")
     text = f"#Garfield {date} 🐱"
+    alt = f"Garfield published on {date}"
 
     response = requests.get(comic_image_url)
     if response.status_code != 200:
@@ -61,16 +62,15 @@ def post_to_bluesky(comic_image_url, comic_date):
         "images": [
             {
                 "image": uploaded_blob['blob'],
-                "alt": "Garfield comic"
+                "alt": alt
             }
         ]
     }
 
     client.send_post(text=text, embed=embed)
-    print(f"Posted comic from {comic_image_url}")
 
 
-# Main function, it will publish Garfield comics every six hours:
+# Main function, it will publish a random Garfield comic in Bluesky:
 def main():
     random_date = get_random_date()
     comic_url = f"{BASE_URL}/{random_date.year}/{random_date.month:02}/{random_date.day:02}"
@@ -78,8 +78,6 @@ def main():
 
     if image_url:
         post_to_bluesky(image_url, random_date)
-    else:
-        print(f"Failed to fetch comic from {comic_url}")
 
 if __name__ == "__main__":
     main()
