@@ -1,11 +1,11 @@
-import requests
-from bs4 import BeautifulSoup
-from atproto import Client
-from datetime import datetime, timedelta
-from dotenv import load_dotenv
 import os
 import random
-import time
+from datetime import datetime, timedelta
+
+import requests
+from atproto import Client, models
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -47,6 +47,14 @@ def fetch_comic_image(url):
 def post_to_bluesky(comic_image_url, comic_date):
     date = comic_date.strftime("%d/%m/%Y")
     text = f"#Garfield {date} 🐱"
+    tag = "Garfield"
+    hash_len = len(tag.encode('UTF-8')) + 1
+    facets = [
+        models.AppBskyRichtextFacet.Main(
+            features=[models.AppBskyRichtextFacet.Tag(tag=tag)],
+            index=models.AppBskyRichtextFacet.ByteSlice(byte_start=0, byte_end=hash_len)
+        )
+    ]
     alt = f"Garfield published on {date}"
 
     response = requests.get(comic_image_url)
@@ -67,7 +75,7 @@ def post_to_bluesky(comic_image_url, comic_date):
         ]
     }
 
-    client.send_post(text=text, embed=embed)
+    client.send_post(text=text, facets=facets, embed=embed)
 
 
 # Main function, it will publish a random Garfield comic in Bluesky:
