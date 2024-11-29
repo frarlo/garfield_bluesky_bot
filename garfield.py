@@ -6,6 +6,9 @@ import requests
 from atproto import Client, models
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
+from PIL import Image
+from io import BytesIO
+from math import gcd
 
 load_dotenv()
 
@@ -63,6 +66,7 @@ def post_to_bluesky(comic_image_url, comic_date):
         return
 
     image_data = response.content
+    aspect_width, aspect_height = get_image_space_ratio(image_data)
     uploaded_blob = client.upload_blob(image_data)
 
     embed = {
@@ -72,14 +76,27 @@ def post_to_bluesky(comic_image_url, comic_date):
                 "image": uploaded_blob['blob'],
                 "alt": alt,
                 "aspectRatio": {
-                    "width": 7,
-                    "height": 2
+                    "width": aspect_width,
+                    "height": aspect_height
                 }
             }
         ]
     }
 
     client.send_post(text=text, facets=facets, embed=embed)
+
+
+# Gets the aspect ratio of the comic strip:
+def get_image_space_ratio(image_data):
+    image = Image.open(BytesIO(image_data))
+    width, height = image.size
+
+    common_divisor = gcd(width, height)
+
+    aspect_width = width // common_divisor
+    aspect_height = height // common_divisor
+
+    return aspect_width, aspect_height
 
 
 # Main function, it will publish a random Garfield comic in Bluesky:
