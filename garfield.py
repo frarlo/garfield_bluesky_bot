@@ -70,7 +70,11 @@ def post_to_bluesky(comic_image_url, comic_date):
         "images": [
             {
                 "image": uploaded_blob['blob'],
-                "alt": alt
+                "alt": alt,
+                "aspectRatio": {
+                    "width": 7,
+                    "height": 2
+                }
             }
         ]
     }
