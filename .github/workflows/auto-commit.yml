@@ -30,3 +30,5 @@ jobs:
       - name: Push changes
         run: |
           git push origin HEAD
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
