@@ -28,7 +28,6 @@ jobs:
           git commit -m "chore: Keep workflow active."
 
       - name: Push changes
-        run: |
-          git push origin HEAD
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.TOKEN }}
