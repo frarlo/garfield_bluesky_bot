@@ -1,0 +1,32 @@
+name: Auto commit to keep the workflow alive
+
+on:
+  schedule:
+    - cron: "0 0 1 * *"
+  workflow_dispatch:
+
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Git
+        run: |
+          git config user.name "github-actions[garfbot]"
+          git config user.email "github-actions[garfbot]@users.noreply.github.com"
+
+      - name: Update timestamp
+        run: echo "Last updated on $(date)" > keepalive.txt
+
+      - name: Commit changes
+        run: |
+          git add keepalive.txt
+          git commit -m "chore: Keep workflow active."
+
+      - name: Push changes
+        run: |
+          git push origin HEAD
