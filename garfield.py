@@ -32,17 +32,28 @@ def get_random_date():
 
 # Returns the url of the Garfield comic in the random date:
 def fetch_comic_image(url):
-    response = requests.get(url)
+
+    session = requests.Session()
+    # Headers update to simulate a browser version
+    session.headers.update({
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Referer': 'https://www.gocomics.com/',
+        'DNT': '1',  # Do Not Track
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+    })
+
+    response = session.get(url)
     if response.status_code != 200:
         return None
 
     soup = BeautifulSoup(response.text, 'html.parser')
-    comic_container = soup.find('div', class_='comic__container')
+    image_tags = soup.find_all('img', class_='Comic_comic__image__6e_Fw')
 
-    if comic_container:
-        image_tag = comic_container.find('picture').find('img', class_='img-fluid')
-        if image_tag:
-            return image_tag['src']
+    if len(image_tags) > 1 and 'src' in image_tags[5].attrs:
+        return image_tags[5]['src']
     return None
 
 
