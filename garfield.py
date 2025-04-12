@@ -50,10 +50,10 @@ def fetch_comic_image(url):
         return None
 
     soup = BeautifulSoup(response.text, 'html.parser')
-    image_tags = soup.find_all('img', class_='Comic_comic__image__6e_Fw')
+    image_tag = soup.find('img', attrs={'fetchpriority':'high'})
 
-    if len(image_tags) > 1 and 'src' in image_tags[5].attrs:
-        return image_tags[5]['src']
+    if image_tag and image_tag.get('src'):
+        return image_tag['src']
     return None
 
 
