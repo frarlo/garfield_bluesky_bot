@@ -1,5 +1,6 @@
 import os
 import random
+import json
 from datetime import datetime, timedelta
 
 import requests
@@ -31,8 +32,7 @@ def get_random_date():
 
 
 # Returns the url of the Garfield comic in the random date:
-def fetch_comic_image(url):
-
+def fetch_comic_image(url, date):
     session = requests.Session()
     # Headers update to simulate a browser version
     session.headers.update({
@@ -50,10 +50,16 @@ def fetch_comic_image(url):
         return None
 
     soup = BeautifulSoup(response.text, 'html.parser')
-    image_tag = soup.find('img', attrs={'fetchpriority':'high'})
+    script_tags = soup.find_all('script', type='application/ld+json')
 
-    if image_tag and image_tag.get('src'):
-        return image_tag['src']
+    for script in script_tags:
+        try:
+            data = json.loads(script.string)
+            if data.get("datePublished") == date:
+                return data.get("contentUrl")
+
+        except json.JSONDecodeError:
+            continue
     return None
 
 
@@ -114,7 +120,8 @@ def get_image_space_ratio(image_data):
 def main():
     random_date = get_random_date()
     comic_url = f"{BASE_URL}/{random_date.year}/{random_date.month:02}/{random_date.day:02}"
-    image_url = fetch_comic_image(comic_url)
+    date = random_date.strftime("%B %d, %Y")
+    image_url = fetch_comic_image(comic_url, date)
 
     if image_url:
         post_to_bluesky(image_url, random_date)
