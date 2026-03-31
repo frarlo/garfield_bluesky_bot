@@ -35,18 +35,24 @@ def get_random_date():
 def fetch_comic_image(url, date):
 
     session = requests.Session()
+
+    session.impersonate = "chrome124"
     # Headers update to simulate a browser version
     session.headers.update({
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
         'Accept-Language': 'en-US,en;q=0.5',
         'Referer': 'https://www.gocomics.com/',
-        'DNT': '1',  # Do Not Track
+        'DNT': '1',
         'Connection': 'keep-alive',
         'Upgrade-Insecure-Requests': '1',
     })
 
-    response = session.get(url)
+    response = session.get(
+        url,
+        timeout=15,
+        allow_redirects=True
+    )
 
     if response.status_code != 200:
         return None
