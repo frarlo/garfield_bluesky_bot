@@ -3,7 +3,7 @@ import random
 import json
 from datetime import datetime, timedelta
 
-import requests
+from curl_cffi import requests
 from atproto import Client, models
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
@@ -47,6 +47,7 @@ def fetch_comic_image(url, date):
     })
 
     response = session.get(url)
+
     if response.status_code != 200:
         return None
 
@@ -127,6 +128,8 @@ def main():
 
     if image_url:
         post_to_bluesky(image_url, random_date)
+    else:
+        print(f'Failed to download {date} Garfield comic.')
 
 if __name__ == "__main__":
     main()
