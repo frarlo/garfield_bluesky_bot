@@ -1,9 +1,11 @@
 import os
 import random
 import json
+import time
 from datetime import datetime, timedelta
 
 from curl_cffi import requests
+from curl_cffi.const import CurlOpt
 from atproto import Client, models
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
@@ -19,10 +21,40 @@ PASSWORD = os.environ.get('BLUESKY_PASSWORD') or os.getenv("BLUESKY_PASSWORD")
 BASE_URL = "https://www.gocomics.com/garfield"
 START_DATE = datetime(1978, 6, 19) # Garfield first comic
 END_DATE = datetime.now()
+FINGERPRINTS = [
+    "chrome120",
+    "chrome123",
+    "chrome124",
+]
 
 # Bluesky client init
 client = Client()
 client.login(USERNAME, PASSWORD)
+
+
+# Creates a session with random fingerprints:
+def create_session():
+
+    session = requests.Session()
+    session.impersonate = random.choice(FINGERPRINTS)
+
+    session.curl.setopt(CurlOpt.IPRESOLVE, 1)
+
+    session.headers.update({
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://www.google.com/",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Cache-Control": "no-cache",
+    })
+
+    session.get("http://www.gocomics.com/", http_version=2)
+
+    time.sleep(random.uniform(1,4))
+
+    return session
 
 
 # Returns a random date between today and Garfield's first comic:
@@ -34,24 +66,12 @@ def get_random_date():
 # Returns the url of the Garfield comic in the random date:
 def fetch_comic_image(url, date):
 
-    session = requests.Session()
-
-    session.impersonate = "chrome124"
-    # Headers update to simulate a browser version
-    session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Referer': 'https://www.gocomics.com/',
-        'DNT': '1',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1',
-    })
+    session = create_session()
 
     response = session.get(
         url,
         timeout=15,
-        allow_redirects=True
+        allow_redirects=True,
     )
 
     if response.status_code != 200:
