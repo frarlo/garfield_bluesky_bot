@@ -64,7 +64,7 @@ def get_random_date():
 
 
 # Returns the url of the Garfield comic in the random date:
-def fetch_comic_image(url, date):
+def fetch_comic_image(url):
 
     session = create_session()
 
@@ -78,19 +78,13 @@ def fetch_comic_image(url, date):
         return None
 
     soup = BeautifulSoup(response.text, 'html.parser')
-    script_tags = soup.find_all('script', type='application/ld+json')
 
-    # Searches the url of the comic image in the page's script tags, matching the published date:
-    for script in script_tags:
-        try:
-            data = json.loads(script.string)
-            if data.get("datePublished") == date:
-                return data.get("contentUrl")
+    meta = soup.find("meta", property="og:image")
 
-        except json.JSONDecodeError:
-            continue
+    if meta and meta.get("content"):
+        return meta["content"]
+
     return None
-
 
 # Posts the image and the date in Bluesky:
 def post_to_bluesky(comic_image_url, comic_date):
@@ -150,7 +144,7 @@ def main():
     random_date = get_random_date()
     comic_url = f"{BASE_URL}/{random_date.year}/{random_date.month:02}/{random_date.day:02}"
     date = random_date.strftime("%B %d, %Y").replace(" 0", " ")
-    image_url = fetch_comic_image(comic_url, date)
+    image_url = fetch_comic_image(comic_url)
 
     if image_url:
         post_to_bluesky(image_url, random_date)
