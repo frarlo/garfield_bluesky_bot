@@ -35,24 +35,11 @@ client.login(USERNAME, PASSWORD)
 # Creates a session with random fingerprints:
 def create_session():
 
-    session = requests.Session()
-    session.impersonate = random.choice(FINGERPRINTS)
+    session = requests.Session(
+        impersonate=random.choice(FINGERPRINTS)
+    )
 
     session.curl.setopt(CurlOpt.IPRESOLVE, 1)
-
-    session.headers.update({
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Referer": "https://www.google.com/",
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1",
-        "Cache-Control": "no-cache",
-    })
-
-    session.get("http://www.gocomics.com/", http_version=2)
-
-    time.sleep(random.uniform(1,4))
 
     return session
 
